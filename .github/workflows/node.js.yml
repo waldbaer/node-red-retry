@@ -1,0 +1,49 @@
+# Workflow for testing of node-red-retry using github actions / Node.js.
+# The workflow will do a checkout, installation of dependencies and run tests.
+#
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+name: CI Test
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        # https://nodered.org/docs/faq/node-versions
+        node-version: [18.x, 19.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: npm install
+    - name: Run unit tests
+      run: npm run coverage
+
+    # Save coverage report in https://coveralls.io
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        flag-name: run-${{ matrix.node-version }}
+        parallel: true
+
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true

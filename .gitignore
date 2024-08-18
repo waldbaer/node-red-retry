@@ -1,0 +1,11 @@
+package-lock.json
+
+# Dependency directories
+node_modules
+
+# IDEs
+.vscode
+
+# Test Reports
+coverage
+.nyc_output

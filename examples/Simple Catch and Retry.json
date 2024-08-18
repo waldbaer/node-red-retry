@@ -1,0 +1,192 @@
+[
+    {
+        "id": "172377d79dd611ae",
+        "type": "group",
+        "z": "613529d99b084479",
+        "name": "node-red-retry: Simple Catch and Retry Example",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "52108748fbab9389",
+            "a6679ed673e98ee0",
+            "0ef4d4a4e81cbb72",
+            "a6af946424aa5702",
+            "d9a9ed7d8ceeab86",
+            "20cddcf30b251034",
+            "a5044f288e1c50af",
+            "72e781e0949b5c85",
+            "fd7a90d5418e2d02"
+        ],
+        "x": 14,
+        "y": 19,
+        "w": 832,
+        "h": 302
+    },
+    {
+        "id": "52108748fbab9389",
+        "type": "function",
+        "z": "613529d99b084479",
+        "g": "172377d79dd611ae",
+        "name": "RandomError",
+        "func": "// Randomly throw an error rather than forwarding the msg.\nconst random = Math.random();\n\nif (random < 0.8) {\n    node.error(`RandomError simulated an error`, msg);\n    return null;\n} else {\n    return msg;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 160,
+        "wires": [
+            [
+                "d9a9ed7d8ceeab86"
+            ]
+        ]
+    },
+    {
+        "id": "a6679ed673e98ee0",
+        "type": "retry",
+        "z": "613529d99b084479",
+        "g": "172377d79dd611ae",
+        "name": "",
+        "retryAttempts": "2",
+        "retryStrategy": "random_delay",
+        "retryStrategyFixedDelay": 5,
+        "retryStrategyFixedDelayUnit": "sec",
+        "retryStrategyRandomDelayMin": "1",
+        "retryStrategyRandomDelayMax": "3",
+        "retryStrategyRandomDelayUnit": "sec",
+        "x": 310,
+        "y": 160,
+        "wires": [
+            [
+                "52108748fbab9389"
+            ]
+        ]
+    },
+    {
+        "id": "0ef4d4a4e81cbb72",
+        "type": "inject",
+        "z": "613529d99b084479",
+        "g": "172377d79dd611ae",
+        "name": "Test Retry!",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "Example Payload",
+        "payloadType": "str",
+        "x": 120,
+        "y": 160,
+        "wires": [
+            [
+                "a6679ed673e98ee0"
+            ]
+        ]
+    },
+    {
+        "id": "a6af946424aa5702",
+        "type": "catch",
+        "z": "613529d99b084479",
+        "g": "172377d79dd611ae",
+        "name": "Catch errors of node 'RandomError'",
+        "scope": [
+            "52108748fbab9389"
+        ],
+        "uncaught": false,
+        "x": 360,
+        "y": 100,
+        "wires": [
+            [
+                "a6679ed673e98ee0"
+            ]
+        ]
+    },
+    {
+        "id": "d9a9ed7d8ceeab86",
+        "type": "debug",
+        "z": "613529d99b084479",
+        "g": "172377d79dd611ae",
+        "name": "RandomError Output",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 700,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "20cddcf30b251034",
+        "type": "comment",
+        "z": "613529d99b084479",
+        "g": "172377d79dd611ae",
+        "name": "node-red-retry: Simple Catch and Retry Example",
+        "info": "# Simple Catch and Retry Example\n\nThe test injects an example `msg` to\nthe _retry_ node. The _retry_ node\nstores a copy of the message (for\npossible retry approaches) and then\nforwards the example `msg` to a\n_RandomError_ function node, simulating\nrandom errors.\n\nErrors thrown by the _RandomError_\nnode are catched and forwarded to\nthe same _retry_ node.\n\nThe retry node then re-sends the\ninitially stored message after a random\ndelay time. This re-send is repeated\nuntil the max. number of retries\nis reached.\n\nThe retry node itself re-throws the\ncatched error if the max. number of\nretries is reached.",
+        "x": 220,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "a5044f288e1c50af",
+        "type": "catch",
+        "z": "613529d99b084479",
+        "g": "172377d79dd611ae",
+        "name": "Optional: Catch errors of retry node",
+        "scope": [
+            "a6679ed673e98ee0"
+        ],
+        "uncaught": false,
+        "x": 360,
+        "y": 280,
+        "wires": [
+            [
+                "72e781e0949b5c85"
+            ]
+        ]
+    },
+    {
+        "id": "72e781e0949b5c85",
+        "type": "debug",
+        "z": "613529d99b084479",
+        "g": "172377d79dd611ae",
+        "name": "Retry Error Output",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 690,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "fd7a90d5418e2d02",
+        "type": "comment",
+        "z": "613529d99b084479",
+        "g": "172377d79dd611ae",
+        "name": "Optional: Catch error of retry node itself",
+        "info": "The retry node itself re-throws the\ncatched error in case the max. number\nof retries is reached.",
+        "x": 370,
+        "y": 240,
+        "wires": []
+    }
+]
