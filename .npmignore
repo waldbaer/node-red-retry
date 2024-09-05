@@ -1,3 +1,4 @@
+# ---- Same as .gitignore ----
 # github
 .github
 
@@ -16,3 +17,8 @@ coverage
 
 # Binaries
 *.tgz
+
+# ---- In addition to .gitignore ----
+
+# Tests
+test/
