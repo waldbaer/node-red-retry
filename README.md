@@ -43,14 +43,14 @@ Changes can be followed [here](/CHANGELOG.md).
    (_catch_ node option: Catch errors from 'selected nodes').
 3) Connect the output of the _catch_ node to the input of the _retry_ node.
 
-<img src="doc/images/usage_overview.png" title="Usage Overview"  width="839"/>
+<img src="doc/images/usage_overview.png" title="Usage Overview"/>
 
 ### Configuration
 
 - Set max. number of retry approaches
 - Configure used retry strategy.
 
-<img src="doc/images/config_overview.png" title="Config Overview" width="572"/>
+<img src="doc/images/config_overview.png" title="Config Overview"/>
 
 ## Examples
 See folder [/examples](/examples) or via Node-RED -> Import -> Examples.
