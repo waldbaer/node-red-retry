@@ -38,8 +38,8 @@ describe('logger utility', function() {
   // ==== Mocks =====
   class NodeMock {
     constructor() {}
-    warn(warn_message, msg = undefined) {}
-    error(error_message, msg = undefined) {}
+    warn(warnMessage, msg = undefined) {}
+    error(errorMessage, msg = undefined) {}
   }
 
   // Mock for a Node-RED node supporting logging
