@@ -19,6 +19,8 @@ coverage
 *.tgz
 
 # ---- In addition to .gitignore ----
+# github
+.github
 
 # Tests
 test/
