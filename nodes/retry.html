@@ -177,6 +177,17 @@
 });
 </script>
 
+<style>
+  .value-spinner {
+    width: 110px !important;
+    border: none !important;
+  }
+  .delay-unit-dropdown {
+    width: 68px !important;
+    text-align: left !important;
+  }
+</style>
+
 <script type="text/html" data-template-name="retry">
   <div class="form-row">
       <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
@@ -184,26 +195,26 @@
   </div>
   <div class="form-row">
     <label for="node-input-retryAttempts"><i class="fa fa-repeat"></i> Retries</label>
-    <input type="text" id="node-input-retryAttempts" style="width:146px">
+    <input type="text" id="node-input-retryAttempts" class="value-spinner">
   </div>
   <div class="form-row">
     <label for="node-input-retryStrategy"><i class="fa fa-circle"></i> Strategy</label>
-    <select id="node-input-retryStrategy" style="width: 165px"></select>
+    <select id="node-input-retryStrategy" style="width: 129px"></select>
   </div>
   <div class="form-row">
     <div id="node-input-retryStrategyFixedDelay-option" class="hide" style="display: block">
       <label for="node-input-retryStrategyFixedDelay""><i class="fa fa-clock-o"></i> Delay</label>
-      <input type="text" id="node-input-retryStrategyFixedDelay" style="width: 146px !important">
-      <select id="node-input-retryStrategyFixedDelayUnit" style="width: 68px; text-align: left;"></select>
+      <input type="text" id="node-input-retryStrategyFixedDelay" class="value-spinner">
+      <select id="node-input-retryStrategyFixedDelayUnit" class="delay-unit-dropdown"></select>
     </div>
   </div>
   <div class="form-row">
     <div id="node-input-retryStrategyRandomDelay-option" class="hide" style="display: block">
       <label for="node-input-retryStrategyRandomDelayMin"><i class="fa fa-clock-o"></i> Between</label>
-      <input type="text" id="node-input-retryStrategyRandomDelayMin" style="width: 146px !important">
+      <input type="text" id="node-input-retryStrategyRandomDelayMin" class="value-spinner">
       <label style="width: auto;">&nbsp;..&nbsp;</label>
-      <input type="text" id="node-input-retryStrategyRandomDelayMax" style="width: 146px !important">
-      <select id="node-input-retryStrategyRandomDelayUnit" style="width: 68px; text-align: left;"></select>
+      <input type="text" id="node-input-retryStrategyRandomDelayMax" class="value-spinner">
+      <select id="node-input-retryStrategyRandomDelayUnit" class="delay-unit-dropdown"></select>
     </div>
   </div>
 </script>
