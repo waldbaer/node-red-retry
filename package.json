@@ -74,6 +74,7 @@
     "test_verbose": "mocha --timeout 10000 \"test/**/*_spec.js\"",
     "coverage": "nyc --reporter=lcov npm test",
     "coverage_local": "nyc npm test",
+    "lint": "eslint --ext .js,.html nodes resources test",
     "node-red-dev-validate": "node-red-dev validate -p ."
   }
 }
