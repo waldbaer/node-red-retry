@@ -69,11 +69,18 @@
       "html"
     ]
   },
+  "nyc": {
+    "check-coverage": true,
+    "reporter": ["lcov", "text", "text-summary"],
+    "branches": 100,
+    "lines": 100,
+    "functions": 100,
+    "statements": 100
+  },
   "scripts": {
     "test": "mocha --timeout 10000 --require mocha-suppress-logs \"test/**/*_spec.js\"",
     "test_verbose": "mocha --timeout 10000 \"test/**/*_spec.js\"",
-    "coverage": "nyc --reporter=lcov npm test",
-    "coverage_local": "nyc npm test",
+    "coverage": "nyc npm test",
     "lint": "eslint --ext .js,.html nodes resources test",
     "node-red-dev-validate": "node-red-dev validate -p ."
   }
