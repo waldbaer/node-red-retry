@@ -155,7 +155,7 @@ module.exports = function(RED) {
         node.status({fill: `red`, shape: 'dot', text: errorText});
 
         let rethrownErrorText = errorText;
-        if (msg.error.message !== undefined) {
+        if  (msg.error.message !== undefined) {
           rethrownErrorText = `${msg.error.message} ([Retry] ${rethrownErrorText})`;
         }
         node.error(rethrownErrorText, msg);
