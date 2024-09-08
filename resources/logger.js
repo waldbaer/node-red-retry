@@ -14,7 +14,7 @@
   exports.logError = function(message, node = undefined, msg = undefined) {
     if (node !== undefined) {
       node.error(`[${LoggerNodeName}] ${message}`, msg);
-    } else {
+    }  else {
       console.error(`[${LoggerNodeName}] ${message}`);
     }
   };
