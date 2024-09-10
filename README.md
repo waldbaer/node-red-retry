@@ -53,4 +53,4 @@ Changes can be followed [here](/CHANGELOG.md).
 <img src="doc/images/config_overview.png" title="Config Overview"/>
 
 ## Examples
-See folder [/examples](/examples) or via Node-RED -> Import -> Examples.
+Import into Node-RED instance via Node-RED -> Import -> Examples.
