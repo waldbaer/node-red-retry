@@ -52,7 +52,7 @@ module.exports = function(RED) {
       // Retry Attempts
       isNaN(node.retryAttempts) || (node.retryAttempts < 1) ||
       // Throw Final Error
-      (typeof(node.throwAsErrorOnLimitExceeded) !== "boolean")
+      (typeof(node.throwAsErrorOnLimitExceeded) !== 'boolean')
     ) {
       result = false;
     }
@@ -173,7 +173,7 @@ module.exports = function(RED) {
           rethrownErrorText = `${msg.error.message} ([Retry] ${rethrownErrorText})`;
           msg.error.message = rethrownErrorText;
         }
-        if(node.throwAsErrorOnLimitExceeded == true) {
+        if (node.throwAsErrorOnLimitExceeded == true) {
           node.error(rethrownErrorText, msg);
         }
         node.send([null, msg]);

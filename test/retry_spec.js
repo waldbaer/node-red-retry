@@ -103,7 +103,7 @@ describe('retry node', function() {
       text: retryError,
     });
 
-    if(retryNode.throwAsErrorOnLimitExceeded == true) {
+    if (retryNode.throwAsErrorOnLimitExceeded == true) {
       let rethrownErrorMessage = retryError;
       if (origErrorMessage) {
         rethrownErrorMessage = `${origErrorMessage} ([Retry] ${rethrownErrorMessage})`;
@@ -175,7 +175,7 @@ describe('retry node', function() {
     delete flow[0].retryStrategyRandomDelayMax;
     delete flow[0].retryStrategyRandomDelayUnit;
     delete flow[0].retryAttempts;
-    delete flow[0].throwAsErrorOnLimitExceeded
+    delete flow[0].throwAsErrorOnLimitExceeded;
 
     helper.load([retryNode], flow, function() {
       const retry = helper.getNode(NodeIdRetry);
@@ -288,20 +288,20 @@ describe('retry node', function() {
           msg.should.have.property('topic', AnyInputString);
           msg.should.have.property('OtherAttribute', AnyInputString);
         } else {
-          const output_messages = call.args[0];
-          output_messages.should.have.lengthOf(2);
-          const msg = output_messages[0];
-          const error_msg = output_messages[1];
+          const outputMessages = call.args[0];
+          outputMessages.should.have.lengthOf(2);
+          const msg = outputMessages[0];
+          const errorMsg = outputMessages[1];
 
           sinon.assert.match(msg, null);
-          error_msg.should.have.property(PropertyPayload, AnyErrorMessage);
-          error_msg.should.have.property(PropertyError, {});
+          errorMsg.should.have.property(PropertyPayload, AnyErrorMessage);
+          errorMsg.should.have.property(PropertyError, {});
         }
 
         // Check node status
         if (msgCounter == 1) {
           checkNodeStatusValidMsg(retry);
-        } else if(msgCounter < expectedMsgCounter) {
+        } else if (msgCounter < expectedMsgCounter) {
           checkNodeStatusRetryAttempt(retry, msgCounter - 1, retryAttempts, '');
         } else {
           checkNodeAllRetriesFailed(retry, retryAttempts);
@@ -472,21 +472,20 @@ describe('retry node', function() {
           msg.should.have.property('topic', AnyInputString);
           msg.should.have.property('OtherAttribute', AnyInputString);
         } else {
-          const output_messages = call.args[0];
-          output_messages.should.have.lengthOf(2);
-          const msg = output_messages[0];
-          const error_msg = output_messages[1];
+          const outputMessages = call.args[0];
+          outputMessages.should.have.lengthOf(2);
+          const msg = outputMessages[0];
+          const errorMsg = outputMessages[1];
 
           sinon.assert.match(msg, null);
-          error_msg.should.have.property(PropertyPayload, AnyErrorMessage);
-          error_msg.should.have.property(PropertyError, {
-            message: `${AnyErrorMessage} ([Retry] Failed after retrying ${retryAttempts} times.)`
-          });
+          errorMsg.should.have.property(PropertyPayload, AnyErrorMessage);
+          errorMsg.should.have.property(PropertyError,
+            {message: `${AnyErrorMessage} ([Retry] Failed after retrying ${retryAttempts} times.)`});
         }
 
         if (msgCounter == 1) {
           checkNodeStatusValidMsg(retry);
-        } else if(msgCounter < expectedMsgCounter) {
+        } else if (msgCounter < expectedMsgCounter) {
           checkNodeStatusRetryAttempt(retry, msgCounter - 1, retryAttempts, delayUnit);
         } else {
           checkNodeAllRetriesFailed(retry, retryAttempts);

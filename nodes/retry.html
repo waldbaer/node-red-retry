@@ -58,8 +58,10 @@
     inputs: 1,
     inputLabels: 'valid or error msg',
     outputs: 2,
-    outputLabels: ['valid or repeated last valid input msg',
-                   'error msg if retry limit is exceeded'],
+    outputLabels: [
+      'valid or repeated last valid input msg',
+      'error msg if retry limit is exceeded',
+    ],
 
     defaults: {
       name: {value: ''},
