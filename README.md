@@ -16,6 +16,7 @@ A user-friendly node for configurable retry handling in Node-RED flows.
   - Immediate
   - Fixed Delay
   - Random Delay
+- Routing/Re-Throwing of subsequent errors if retries limit is exceeded.
 
 # Installation
 You can install the nodes using the Node-RED 'Manage palette' in the side bar.
@@ -49,8 +50,9 @@ Changes can be followed [here](/CHANGELOG.md).
 
 - Set max. number of retry approaches
 - Configure used retry strategy.
+- Optional: Enable throwing of every subsequent error `msg` as error if the retries limit is exceeded.
 
 <img src="doc/images/config_overview.png" title="Config Overview"/>
 
 ## Examples
-Import into Node-RED instance via Node-RED -> Import -> Examples.
+Import into Node-RED instance via Node-RED -> Import -> Examples -> @waldbaer/node-red-retry.
