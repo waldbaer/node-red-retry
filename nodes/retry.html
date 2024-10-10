@@ -31,6 +31,8 @@
   ]);
   const kDelayUnitDefault = kDelayUnitSeconds;
 
+  const kThrowAsErrorOnLimitExceededDefault = true;
+
   // ---- Utilities ----
   function validateRandomDelayMinMax() {
     let result = true;
@@ -54,9 +56,12 @@
     icon: 'font-awesome/fa-repeat',
 
     inputs: 1,
-    inputLabels: 'input',
-    outputs: 1,
-    outputLabels: 'output',
+    inputLabels: 'valid or error msg',
+    outputs: 2,
+    outputLabels: [
+      'valid or repeated last valid input msg',
+      'error msg if retry limit is exceeded',
+    ],
 
     defaults: {
       name: {value: ''},
@@ -98,6 +103,7 @@
         value: kDelayUnitDefault,
         required: false,
       },
+      throwAsErrorOnLimitExceeded: {value: kThrowAsErrorOnLimitExceededDefault, required: false},
     },
 
     label: function() {
@@ -206,6 +212,10 @@
       <select id="node-input-retryStrategyRandomDelayUnit" style="width: 68px !important"></select>
     </div>
   </div>
+  <div class="form-row">
+    <input type="checkbox" id="node-input-throwAsErrorOnLimitExceeded" style="display: inline-block; width: auto; vertical-align: top;">
+    <label for="node-input-throwAsErrorOnLimitExceeded" style="width: auto;"> Throw as Error If Retry Limit Is Exceeded</label>
+  </div>
 </script>
 
 <script type="text/html" data-help-name="retry">
@@ -230,54 +240,84 @@
           <li><i>Random Delay:</i> Send last valid <code>msg</code> after a random delay within the configured time range.</li>
         </ul>
       </dd>
+
+      <dt>Throw as Error If Retry Limit Is Exceeded</dt>
+      <dd>If the maximum number of retries is exceeded, any subsequent error message will be thrown as error.</dd>
     </dl>
 
   <h3>Inputs</h3>
     <dl class="message-properties">
         <dt class="optional">error <span class="property-type">any</span></dt>
-        <dd>If attribute exists the input is treated as error message which will trigger the retry attempts.
-        </dd>
+        <dd>If attribute <code>msg.error</code> exists the input is treated as error message which
+            will trigger the retry attempt(s). Otherwise the message is treated as valid message.</dd>
     </dl>
 
-<h3>Details</h3>
-  <p>
-    The idea behind the retry node is a user-friendly implementation of automatic retry handling
-    after an error is reported within a flow section.
-  </p>
-
-  <p>
-    The <i>retry</i> node is typically emplaced before a flow section which might fail.
-    A separate <i>catch</i> node is then used to catch potential errors and forward them
-    to the <i>retry</i> node.
-    In case the <i>retry</i> node receives a valid <code>msg</code> (without <code>msg.error</code> attribute)
-    the <code>msg</code> is just stored within the <i>retry</i> node and forwarded to the output.
-    In case of an error (<code>msg.error</code> exists) the <i>retry</i> node then just re-sends the stored
-    valid input <code>msg</code> again after the configured delay time.
-    If the max. mumber of retries is reached the <i>retry</i> node itself re-throws the error
-    and stops further retry approaches.
-  </p>
-
-  <p>
-    Step-by-Step Usage / Configuration:
-    <ol>
-      <li>Add a <i>retry</i> node before a flow section which might fail.</li>
-      <li>Add a <i>catch</i> node and catch all errors of the node(s) which might fail with errors.
-          It is recommended to catch only errors from the potentially failing nodes (<i>catch</i> node option: Catch errors from 'selected nodes').
+  <h3>Outputs</h3>
+    <ol class="node-ports">
+      <li>Valid input <code>msg</code> or the repeated stored last valid input <code>msg</code>.</li>
+      <li>Error <code>msg</code> if retry limit is exceeded.
+        <dl class="message-properties">
+          <dt>error.message <span class="property-type">string</span></dt>
+          <dd>The error message.</dd>
+          <dt>error.source.id <span class="property-type">string</span></dt>
+          <dd>The ID of the node that threw the error.</dd>
+          <dt>error.source.type <span class="property-type">string</span></dt>
+          <dd>The type of the node that threw the error.</dd>
+          <dt>error.source.name <span class="property-type">string</span></dt>
+          <dd>The name, if set, of the node that threw the error.</dd>
+        </dl>
       </li>
-      <li>Connect the output of the <i>catch</i> node to the input of the <i>retry</i> node.</li>
-      <li>Adapt the <i>retry</i> node configuration if necessary.</li>
     </ol>
-  </p>
 
-  <p>
-    Recommendations:
-    <ul>
-      <li>The configured retry delay should be smaller then typical execution time of the flow section.</li>
-    </ul>
-  </p>
+  <h3>Details</h3>
+    <p>
+      The idea behind the retry node is a user-friendly implementation of automatic retry handling
+      after an error is reported within a flow section.
+    </p>
 
-  <h3>References</h3>
-    <ul>
-        <li><a href="https://cookbook.nodered.org/basic/retry-on-error">Node-RED cookbook - Automatic Retry</a> - Manual implementation of automatic retry</li>
-    </ul>
+    <p>
+      The <i>retry</i> node is typically emplaced before a flow section which might fail.
+      A separate <i>catch</i> node is then used to catch potential errors and forward them
+      to the <i>retry</i> node.
+      In case the <i>retry</i> node receives a valid <code>msg</code> (without <code>msg.error</code> attribute)
+      the <code>msg</code> is just stored within the <i>retry</i> node and forwarded to the first output port.
+      In case of an error (<code>msg.error</code> exists) the <i>retry</i> node then just re-sends the stored
+      valid input <code>msg</code> again after the configured delay time.
+    </p>
+
+    <p>
+      If the max. number of retries is exceeded the <i>retry</i> node forwards any subsequent
+      error <code>msg</code> to the second output port.
+      Optionally the error <code>msg</code> can be re-thrown as error by the <i>retry</i> node
+      if option 'Throw as Error If Retry Limit Is Exceeded' is enabled.
+    </p>
+
+    <p>
+      Step-by-Step Usage / Configuration:
+      <ol>
+        <li>Add a <i>retry</i> node before a flow section which might fail.</li>
+        <li>
+          Add a <i>catch</i> node and catch all errors of the node(s) which might fail with errors.
+          It is recommended to catch only errors from the potentially failing nodes (<i>catch</i> node option: Catch errors from 'selected nodes').
+        </li>
+        <li>Connect the output of the <i>catch</i> node to the input of the <i>retry</i> node.</li>
+        <li>Adapt the <i>retry</i> node configuration if necessary.</li>
+        <li>
+          Optional: Process errors messages forwarded to the second output port if retries limit is exceeded.
+          Alternatively another <i>catch</i> node can be used to catch the error messages re-thrown as errors by the <i>retry</i> node.
+        </li>
+      </ol>
+    </p>
+
+    <p>
+      Recommendations:
+      <ul>
+        <li>The configured retry delay should be smaller then typical execution time of the flow section.</li>
+      </ul>
+    </p>
+
+    <h3>References</h3>
+      <ul>
+          <li><a href="https://cookbook.nodered.org/basic/retry-on-error">Node-RED cookbook - Automatic Retry</a> - Manual implementation of automatic retry</li>
+      </ul>
 </script>

@@ -1,33 +1,34 @@
 [
     {
-        "id": "172377d79dd611ae",
+        "id": "6352f25434969caa",
         "type": "group",
-        "z": "613529d99b084479",
+        "z": "41a8895c5f113b68",
         "name": "node-red-retry: Simple Catch and Retry Example",
         "style": {
             "label": true
         },
         "nodes": [
-            "52108748fbab9389",
-            "a6679ed673e98ee0",
-            "0ef4d4a4e81cbb72",
-            "a6af946424aa5702",
-            "d9a9ed7d8ceeab86",
-            "20cddcf30b251034",
-            "a5044f288e1c50af",
-            "72e781e0949b5c85",
-            "fd7a90d5418e2d02"
+            "e14c8ccad18eb2ed",
+            "d4fe3e52705cc372",
+            "e3a93bb9a33183a8",
+            "8f7e1222475f403f",
+            "781b5a15591667c8",
+            "d0aa3fa716c0ba7d",
+            "b7c4141e58cc05c3",
+            "954d0676e72cd060",
+            "e59654ac5e33ad07",
+            "0f0c9503bcb49ff3"
         ],
-        "x": 14,
-        "y": 19,
-        "w": 832,
-        "h": 302
+        "x": 94,
+        "y": 899,
+        "w": 872,
+        "h": 342
     },
     {
-        "id": "52108748fbab9389",
+        "id": "e14c8ccad18eb2ed",
         "type": "function",
-        "z": "613529d99b084479",
-        "g": "172377d79dd611ae",
+        "z": "41a8895c5f113b68",
+        "g": "6352f25434969caa",
         "name": "RandomError",
         "func": "// Randomly throw an error rather than forwarding the msg.\nconst random = Math.random();\n\nif (random < 0.8) {\n    node.error(`RandomError simulated an error`, msg);\n    return null;\n} else {\n    return msg;\n}",
         "outputs": 1,
@@ -36,19 +37,19 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 500,
-        "y": 160,
+        "x": 620,
+        "y": 1040,
         "wires": [
             [
-                "d9a9ed7d8ceeab86"
+                "781b5a15591667c8"
             ]
         ]
     },
     {
-        "id": "a6679ed673e98ee0",
+        "id": "d4fe3e52705cc372",
         "type": "retry",
-        "z": "613529d99b084479",
-        "g": "172377d79dd611ae",
+        "z": "41a8895c5f113b68",
+        "g": "6352f25434969caa",
         "name": "",
         "retryAttempts": "2",
         "retryStrategy": "random_delay",
@@ -57,19 +58,23 @@
         "retryStrategyRandomDelayMin": "1",
         "retryStrategyRandomDelayMax": "3",
         "retryStrategyRandomDelayUnit": "sec",
-        "x": 310,
-        "y": 160,
+        "throwAsErrorOnLimitExceeded": true,
+        "x": 390,
+        "y": 1040,
         "wires": [
             [
-                "52108748fbab9389"
+                "e14c8ccad18eb2ed"
+            ],
+            [
+                "0f0c9503bcb49ff3"
             ]
         ]
     },
     {
-        "id": "0ef4d4a4e81cbb72",
+        "id": "e3a93bb9a33183a8",
         "type": "inject",
-        "z": "613529d99b084479",
-        "g": "172377d79dd611ae",
+        "z": "41a8895c5f113b68",
+        "g": "6352f25434969caa",
         "name": "Test Retry!",
         "props": [
             {
@@ -87,37 +92,37 @@
         "topic": "",
         "payload": "Example Payload",
         "payloadType": "str",
-        "x": 120,
-        "y": 160,
+        "x": 200,
+        "y": 1040,
         "wires": [
             [
-                "a6679ed673e98ee0"
+                "d4fe3e52705cc372"
             ]
         ]
     },
     {
-        "id": "a6af946424aa5702",
+        "id": "8f7e1222475f403f",
         "type": "catch",
-        "z": "613529d99b084479",
-        "g": "172377d79dd611ae",
+        "z": "41a8895c5f113b68",
+        "g": "6352f25434969caa",
         "name": "Catch errors of node 'RandomError'",
         "scope": [
-            "52108748fbab9389"
+            "e14c8ccad18eb2ed"
         ],
         "uncaught": false,
-        "x": 360,
-        "y": 100,
+        "x": 440,
+        "y": 980,
         "wires": [
             [
-                "a6679ed673e98ee0"
+                "d4fe3e52705cc372"
             ]
         ]
     },
     {
-        "id": "d9a9ed7d8ceeab86",
+        "id": "781b5a15591667c8",
         "type": "debug",
-        "z": "613529d99b084479",
-        "g": "172377d79dd611ae",
+        "z": "41a8895c5f113b68",
+        "g": "6352f25434969caa",
         "name": "RandomError Output",
         "active": true,
         "tosidebar": true,
@@ -127,45 +132,45 @@
         "targetType": "full",
         "statusVal": "payload",
         "statusType": "auto",
-        "x": 700,
-        "y": 160,
+        "x": 820,
+        "y": 1040,
         "wires": []
     },
     {
-        "id": "20cddcf30b251034",
+        "id": "d0aa3fa716c0ba7d",
         "type": "comment",
-        "z": "613529d99b084479",
-        "g": "172377d79dd611ae",
+        "z": "41a8895c5f113b68",
+        "g": "6352f25434969caa",
         "name": "node-red-retry: Simple Catch and Retry Example",
-        "info": "# Simple Catch and Retry Example\n\nThe test injects an example `msg` to\nthe _retry_ node. The _retry_ node\nstores a copy of the message (for\npossible retry approaches) and then\nforwards the example `msg` to a\n_RandomError_ function node, simulating\nrandom errors.\n\nErrors thrown by the _RandomError_\nnode are catched and forwarded to\nthe same _retry_ node.\n\nThe retry node then re-sends the\ninitially stored message after a random\ndelay time. This re-send is repeated\nuntil the max. number of retries\nis reached.\n\nThe retry node itself re-throws the\ncatched error if the max. number of\nretries is reached.",
-        "x": 220,
-        "y": 60,
+        "info": "# Simple Catch and Retry Example\n\nThe test injects an example `msg` to\nthe _retry_ node. The _retry_ node\nstores a copy of the message (for\npossible retry approaches) and then\nforwards the example `msg` to a\n_RandomError_ function node, simulating\nrandom errors.\n\nErrors thrown by the _RandomError_\nnode are catched and forwarded to\nthe same _retry_ node.\n\nThe retry node then re-sends the\ninitially stored message after a random\ndelay time. This re-send is repeated\nuntil the max. number of retries\nis exceeded.\n\nIf the max. number of retries is exceeded\nthe _retry_ node forwards any subsequent\nerror `msg` to the second output port.\n\nIn this example the configuration option\n\"Throw as Error If Retry Limit Is Exceeded\"\nis enabled. Therefore every subsequent\nerror `msg` is also re-thrown as error\nby the _retry_ node itself.",
+        "x": 300,
+        "y": 940,
         "wires": []
     },
     {
-        "id": "a5044f288e1c50af",
+        "id": "b7c4141e58cc05c3",
         "type": "catch",
-        "z": "613529d99b084479",
-        "g": "172377d79dd611ae",
+        "z": "41a8895c5f113b68",
+        "g": "6352f25434969caa",
         "name": "Optional: Catch errors of retry node",
         "scope": [
-            "a6679ed673e98ee0"
+            "d4fe3e52705cc372"
         ],
         "uncaught": false,
-        "x": 360,
-        "y": 280,
+        "x": 440,
+        "y": 1200,
         "wires": [
             [
-                "72e781e0949b5c85"
+                "954d0676e72cd060"
             ]
         ]
     },
     {
-        "id": "72e781e0949b5c85",
+        "id": "954d0676e72cd060",
         "type": "debug",
-        "z": "613529d99b084479",
-        "g": "172377d79dd611ae",
-        "name": "Retry Error Output",
+        "z": "41a8895c5f113b68",
+        "g": "6352f25434969caa",
+        "name": "Retry Node Error Output",
         "active": true,
         "tosidebar": true,
         "console": false,
@@ -174,19 +179,37 @@
         "targetType": "full",
         "statusVal": "payload",
         "statusType": "auto",
-        "x": 690,
-        "y": 280,
+        "x": 810,
+        "y": 1200,
         "wires": []
     },
     {
-        "id": "fd7a90d5418e2d02",
+        "id": "e59654ac5e33ad07",
         "type": "comment",
-        "z": "613529d99b084479",
-        "g": "172377d79dd611ae",
+        "z": "41a8895c5f113b68",
+        "g": "6352f25434969caa",
         "name": "Optional: Catch error of retry node itself",
-        "info": "The retry node itself re-throws the\ncatched error in case the max. number\nof retries is reached.",
-        "x": 370,
-        "y": 240,
+        "info": "In this example the configuration option\n\"Throw as Error If Retry Limit Is Exceeded\"\nis enabled. Therefore every subsequent\nerror `msg` is also re-thrown as error\nby the _retry_ node itself.\n\nThese errors can be catched and processed\nby another _catch_ node.",
+        "x": 450,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "0f0c9503bcb49ff3",
+        "type": "debug",
+        "z": "41a8895c5f113b68",
+        "g": "6352f25434969caa",
+        "name": "Error After Retry Limit Exceeded",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 790,
+        "y": 1100,
         "wires": []
     }
 ]

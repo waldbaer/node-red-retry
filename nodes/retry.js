@@ -23,6 +23,8 @@ module.exports = function(RED) {
 
   const kRetryAttemptsDefault = 3;
 
+  const kThrowAsErrorOnLimitExceededDefault = true;
+
   // ---- Utility functions -----------------------------------------------------------------------
   function getConfig(node, nodeConfig) {
     let result = true;
@@ -37,6 +39,8 @@ module.exports = function(RED) {
 
     getOptionalNumberConfig(node, nodeConfig, 'retryAttempts', kRetryAttemptsDefault);
 
+    getOptionalBooleanConfig(node, nodeConfig, 'throwAsErrorOnLimitExceeded', kThrowAsErrorOnLimitExceededDefault);
+
     if (// Retry Strategy
       !kSupportedRetryStrategies.includes(nodeConfig.retryStrategy) ||
       // Fixed Delay
@@ -46,7 +50,10 @@ module.exports = function(RED) {
       (node.retryStrategyRandomDelayMin > node.retryStrategyRandomDelayMax) ||
       node.retryStrategyRandomDelayUnit === undefined ||
       // Retry Attempts
-      isNaN(node.retryAttempts) || node.retryAttempts < 1) {
+      isNaN(node.retryAttempts) || (node.retryAttempts < 1) ||
+      // Throw Final Error
+      (typeof(node.throwAsErrorOnLimitExceeded) !== 'boolean')
+    ) {
       result = false;
     }
 
@@ -68,6 +75,13 @@ module.exports = function(RED) {
       } else {
         node[attributeName] = undefined;
       }
+    }
+  }
+
+  function getOptionalBooleanConfig(node, nodeConfig, attributeName, defaultValue) {
+    node[attributeName] = defaultValue;
+    if (nodeConfig.hasOwnProperty(attributeName)) {
+      node[attributeName] = nodeConfig[attributeName];
     }
   }
 
@@ -157,8 +171,12 @@ module.exports = function(RED) {
         let rethrownErrorText = errorText;
         if (msg.error.message !== undefined) {
           rethrownErrorText = `${msg.error.message} ([Retry] ${rethrownErrorText})`;
+          msg.error.message = rethrownErrorText;
         }
-        node.error(rethrownErrorText, msg);
+        if (node.throwAsErrorOnLimitExceeded == true) {
+          node.error(rethrownErrorText, msg);
+        }
+        node.send([null, msg]);
       }
     } else {
       logger.logWarning(`Error reported before any valid msg. Skipping retry attempts.`, node, msg);

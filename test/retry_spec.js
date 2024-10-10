@@ -41,9 +41,11 @@ describe('retry node', function() {
 
   const kDelayUnitDefault = kDurationSeconds;
   const kRetryAttemptsDefault = 3;
+  const kThrowAsErrorOnLimitExceededDefault = true;
 
   const AcceptedDelayJitter = 10; // percent
   const PropertyPayload = 'payload';
+  const PropertyError = 'error';
 
   const AnyInputString = 'any input string';
   const AnyErrorMessage = 'any error message';
@@ -101,11 +103,13 @@ describe('retry node', function() {
       text: retryError,
     });
 
-    let rethrownErrorMessage = retryError;
-    if (origErrorMessage) {
-      rethrownErrorMessage = `${origErrorMessage} ([Retry] ${rethrownErrorMessage})`;
+    if (retryNode.throwAsErrorOnLimitExceeded == true) {
+      let rethrownErrorMessage = retryError;
+      if (origErrorMessage) {
+        rethrownErrorMessage = `${origErrorMessage} ([Retry] ${rethrownErrorMessage})`;
+      }
+      retryNode.error.should.be.calledWithMatch(rethrownErrorMessage);
     }
-    retryNode.error.should.be.calledWithMatch(rethrownErrorMessage);
   }
 
   // ==== Flow defaults ===============================================================================================
@@ -129,6 +133,7 @@ describe('retry node', function() {
     retryStrategyRandomDelayMin: 1000,
     retryStrategyRandomDelayMax: 2000,
     retryStrategyRandomDelayUnit: kDurationMilliseconds,
+    throwAsErrorOnLimitExceeded: true,
     wires: [[NodeIdHelper]],
   };
 
@@ -154,6 +159,7 @@ describe('retry node', function() {
       retry.should.have.property('retryStrategyRandomDelayMax', retryConfig.retryStrategyRandomDelayMax);
       retry.should.have.property('retryStrategyRandomDelayUnit', retryConfig.retryStrategyRandomDelayUnit);
       retry.should.have.property('retryAttempts', retryConfig.retryAttempts);
+      retry.should.have.property('throwAsErrorOnLimitExceeded', retryConfig.throwAsErrorOnLimitExceeded);
 
       done();
     });
@@ -169,6 +175,7 @@ describe('retry node', function() {
     delete flow[0].retryStrategyRandomDelayMax;
     delete flow[0].retryStrategyRandomDelayUnit;
     delete flow[0].retryAttempts;
+    delete flow[0].throwAsErrorOnLimitExceeded;
 
     helper.load([retryNode], flow, function() {
       const retry = helper.getNode(NodeIdRetry);
@@ -179,6 +186,7 @@ describe('retry node', function() {
       retry.should.have.property('retryStrategyRandomDelayMax', kRetryStrategyRandomDelayMaxDefault);
       retry.should.have.property('retryStrategyRandomDelayUnit', kDelayUnitDefault);
       retry.should.have.property('retryAttempts', kRetryAttemptsDefault);
+      retry.should.have.property('throwAsErrorOnLimitExceeded', kThrowAsErrorOnLimitExceededDefault);
 
       done();
     });
@@ -239,12 +247,17 @@ describe('retry node', function() {
     genericLoadInvalidConfigTest([['retryAttempts', '0']], done);
   });
 
+  it('should be not loaded with an invalid throwAsErrorOnLimitExceeded value', function(done) {
+    genericLoadInvalidConfigTest([['throwAsErrorOnLimitExceeded', 'text_instead_boolean']], done);
+  });
+
   // ==== Immediate Tests =====================================================
 
   function genericImmediateStrategyTest(retryAttempts, done) {
     const flow = structuredClone(FlowNodes);
     flow[0].retryStrategy = kRetryStrategyImmediate;
     flow[0].retryAttempts = retryAttempts;
+    flow[0].throwAsErrorOnLimitExceeded = false;
 
     console.log(`Immediate strategy test with ${retryAttempts} retries`);
 
@@ -254,16 +267,11 @@ describe('retry node', function() {
       let endTime = null;
 
       let msgCounter = 0;
-      const expectedMsgCounter = retryAttempts + 1; // +1 for initial valid msg
+      const expectedMsgCounter = retryAttempts + 2; // +1 for initial valid msg, +1 for final error msg
 
       retry.on('call:send', (call) => {
-        endTime = getTimestamp();
-        const msg = call.args[0];
-        msg.should.have.property(PropertyPayload, AnyInputString);
-        msg.should.have.property('topic', AnyInputString);
-        msg.should.have.property('OtherAttribute', AnyInputString);
-
         // Measure and check the retry delay
+        endTime = getTimestamp();
         if (startTime !== null) {
           measuredDelay = endTime - startTime;
           measuredDelay.should.be.below(20);
@@ -272,14 +280,35 @@ describe('retry node', function() {
         msgCounter++;
         console.log(`Received message #${msgCounter}`);
 
+        // Check output messages
+        call.args.should.have.lengthOf(1);
+        if (msgCounter < expectedMsgCounter) {
+          const msg = call.args[0];
+          msg.should.have.property(PropertyPayload, AnyInputString);
+          msg.should.have.property('topic', AnyInputString);
+          msg.should.have.property('OtherAttribute', AnyInputString);
+        } else {
+          const outputMessages = call.args[0];
+          outputMessages.should.have.lengthOf(2);
+          const msg = outputMessages[0];
+          const errorMsg = outputMessages[1];
+
+          sinon.assert.match(msg, null);
+          errorMsg.should.have.property(PropertyPayload, AnyErrorMessage);
+          errorMsg.should.have.property(PropertyError, {});
+        }
+
+        // Check node status
         if (msgCounter == 1) {
           checkNodeStatusValidMsg(retry);
-        } else {
+        } else if (msgCounter < expectedMsgCounter) {
           checkNodeStatusRetryAttempt(retry, msgCounter - 1, retryAttempts, '');
+        } else {
+          checkNodeAllRetriesFailed(retry, retryAttempts);
         }
 
         // After last expected message is received, wait some more time to assert that
-        // no further message are received.
+        // no further messages are received.
         if (msgCounter == expectedMsgCounter) {
           setTimeout(function() {
             console.log(`Final check of msgCounter`);
@@ -293,19 +322,14 @@ describe('retry node', function() {
       // Initial valid message
       retry.receive({payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString});
 
-      // Then send erroneous messages (after the regular fixedDelay expired)
+      // Then send erroneous messages
       // Send one more erroneous message to test limit of retry approaches
       for (let retryAttempt = 0; retryAttempt < retryAttempts + 1; retryAttempt++) {
         const delay = 100;
         setTimeout(function() {
           startTime = getTimestamp();
           console.log(`Send message #${retryAttempt}`);
-          retry.receive({payload: 'other_input', error: { /* explicitly without 'message' */ }});
-
-          // Last error message must cause an error as max. number of retry attempts is reached
-          if (retryAttempt == retryAttempts) {
-            checkNodeAllRetriesFailed(retry, retryAttempts);
-          }
+          retry.receive({payload: AnyErrorMessage, error: { /* explicitly without 'message' */ }});
         }, delay);
       }
     });
@@ -425,33 +449,50 @@ describe('retry node', function() {
       let endTime = null;
 
       let msgCounter = 0;
-      const expectedMsgCounter = retryAttempts + 1; // +1 for initial valid msg
+      const expectedMsgCounter = retryAttempts + 2; // +1 for initial valid msg, +1 for final error msg
 
       retry.on('call:send', (call) => {
         endTime = getTimestamp();
-        const msg = call.args[0];
-        msg.should.have.property(PropertyPayload, AnyInputString);
-        msg.should.have.property('topic', AnyInputString);
-        msg.should.have.property('OtherAttribute', AnyInputString);
+
+        msgCounter++;
+        console.log(`Received message #${msgCounter}`);
 
         // Measure and check the retry delay
-        if (startTime !== null) {
+        if ((startTime !== null) && (msgCounter < expectedMsgCounter)) {
           measuredDelay = endTime - startTime;
           console.log(`Measured delay: ${measuredDelay.toFixed(1)}ms`);
           checkExpectedDelay(measuredDelay, delayMinMilliseconds, delayMaxMilliseconds, AcceptedDelayJitter);
         }
 
-        msgCounter++;
-        console.log(`Received message #${msgCounter}`);
+        // Check output messages
+        call.args.should.have.lengthOf(1);
+        if (msgCounter < expectedMsgCounter) {
+          const msg = call.args[0];
+          msg.should.have.property(PropertyPayload, AnyInputString);
+          msg.should.have.property('topic', AnyInputString);
+          msg.should.have.property('OtherAttribute', AnyInputString);
+        } else {
+          const outputMessages = call.args[0];
+          outputMessages.should.have.lengthOf(2);
+          const msg = outputMessages[0];
+          const errorMsg = outputMessages[1];
+
+          sinon.assert.match(msg, null);
+          errorMsg.should.have.property(PropertyPayload, AnyErrorMessage);
+          errorMsg.should.have.property(PropertyError,
+            {message: `${AnyErrorMessage} ([Retry] Failed after retrying ${retryAttempts} times.)`});
+        }
 
         if (msgCounter == 1) {
           checkNodeStatusValidMsg(retry);
-        } else {
+        } else if (msgCounter < expectedMsgCounter) {
           checkNodeStatusRetryAttempt(retry, msgCounter - 1, retryAttempts, delayUnit);
+        } else {
+          checkNodeAllRetriesFailed(retry, retryAttempts);
         }
 
         // After last expected message is received, wait some more time to assert that
-        // no further message are received.
+        // no further messages are received.
         if (msgCounter == expectedMsgCounter) {
           setTimeout(function() {
             console.log(`Final check of msgCounter`);
@@ -472,12 +513,7 @@ describe('retry node', function() {
         setTimeout(function() {
           startTime = getTimestamp();
           console.log(`Send error message #${retryAttempt}`);
-          retry.receive({payload: 'other_input', error: {message: AnyErrorMessage}});
-
-          // Last error message must cause an error as max. number of retry attempts is reached
-          if (retryAttempt == retryAttempts) {
-            checkNodeAllRetriesFailed(retry, retryAttempts, AnyErrorMessage);
-          }
+          retry.receive({payload: AnyErrorMessage, error: {message: AnyErrorMessage}});
         }, delay);
       }
     });
