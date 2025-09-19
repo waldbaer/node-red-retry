@@ -1,0 +1,34 @@
+name: Enterprise NPM Security Check
+on: [push, pull_request]
+
+jobs:
+  npm-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for malicious npm packages
+        run: |
+          # Known malicious hashes
+          HASHES=(
+            "46faab8ab153fae6e80e7cca38eab363075bb524edd79e42269217a083628f09"
+            "b74caeaa75e077c99f7d44f46daaf9796a3be43ecf24f2a1fd381844669da777"
+            "dc67467a39b70d1cd4c1f7f7a459b35058163592f4a9e8fb4dffcbba98ef210c"
+            "4b2399646573bb737c4969563303d8ee2e9ddbd1b271f1ca9e35ea78062538db"
+          )
+
+          FOUND=false
+          for file in $(find . -name "*.js" -type f); do
+            HASH=$(sha256sum "$file" | cut -d' ' -f1)
+            for KNOWN in "${HASHES[@]}"; do
+              if [ "$HASH" = "$KNOWN" ]; then
+                echo "ERROR: Malicious file detected: $file"
+                FOUND=true
+              fi
+            done
+          done
+
+          if [ "$FOUND" = true ]; then
+            echo "Security check failed: malicious files detected"
+            exit 1
+          fi
