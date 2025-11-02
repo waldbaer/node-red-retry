@@ -56,3 +56,36 @@ Changes can be followed [here](/CHANGELOG.md).
 
 ## Examples
 Import into Node-RED instance via Node-RED -> Import -> Examples -> @waldbaer/node-red-retry.
+
+
+
+# Development
+
+## Setup environment
+
+```
+npm install --save-dev
+```
+
+### Format / Linter / Tests
+
+```
+# Check linter
+npm run lint
+
+# Run all tests incl. coverage check
+npm run coverage
+
+# Run subset of tests
+npm run test -- -g "<filter>"
+
+# Node-RED package verification
+npm run node-red-dev-validate
+```
+
+### Update dependencies to latest versions
+
+```
+# Show outdated dependencies
+npm outdated
+```
