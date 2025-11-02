@@ -4,7 +4,7 @@
 [![npm version](https://badge.fury.io/js/@waldbaer%2Fnode-red-retry.svg)](https://badge.fury.io/js/@waldbaer%2Fnode-red-retry)
 [![MIT License](https://img.shields.io/github/license/waldbaer/node-red-retry?style=flat-square)](https://opensource.org/licenses/MIT)
 [![GitHub issues open](https://img.shields.io/github/issues/waldbaer/node-red-retry?style=flat-square)](https://github.com/waldbaer/node-red-retry/issues)
-[![GitHub Actions](https://github.com/waldbaer/node-red-retry/actions/workflows/node.js.yml/badge.svg?branch=master)](https://github.com/waldbaer/node-red-retry/actions/workflows/node.js.yml)
+[![GitHub Actions](https://github.com/waldbaer/node-red-retry/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/waldbaer/node-red-retry/actions/workflows/test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/waldbaer/node-red-retry/badge.svg?branch=master)](https://coveralls.io/github/waldbaer/node-red-retry?branch=master)
 
 A user-friendly node for configurable retry handling in Node-RED flows.
