@@ -33,7 +33,7 @@
     "eslint-plugin-promise": "7.3.0",
     "mocha": "11.7.5",
     "mocha-suppress-logs": "0.6.0",
-    "node-red": "4.1.10",
+    "node-red": "4.1.11",
     "node-red-dev": "0.1.6",
     "node-red-node-test-helper": "0.3.6",
     "nyc": "18.0.0"
