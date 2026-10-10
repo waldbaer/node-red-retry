@@ -31,9 +31,9 @@
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-n": "18.1.0",
     "eslint-plugin-promise": "7.3.0",
-    "mocha": "11.7.6",
+    "mocha": "12.0.3",
     "mocha-suppress-logs": "0.6.0",
-    "node-red": "4.1.11",
+    "node-red": "5.0.8",
     "node-red-dev": "0.1.6",
     "node-red-node-test-helper": "0.3.6",
     "nyc": "18.0.0"
