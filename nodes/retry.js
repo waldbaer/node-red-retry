@@ -1,4 +1,4 @@
-module.exports = function(RED) {
+module.exports = function (RED) {
   const logger = require('../resources/logger');
   const chrono = require('../resources/chrono');
 
@@ -52,7 +52,7 @@ module.exports = function(RED) {
       // Retry Attempts
       isNaN(node.retryAttempts) || (node.retryAttempts < 1) ||
       // Throw Final Error
-      (typeof(node.throwAsErrorOnLimitExceeded) !== 'boolean')
+      (typeof (node.throwAsErrorOnLimitExceeded) !== 'boolean')
     ) {
       result = false;
     }
@@ -62,14 +62,14 @@ module.exports = function(RED) {
 
   function getOptionalNumberConfig(node, nodeConfig, attributeName, defaultValue) {
     node[attributeName] = defaultValue;
-    if (nodeConfig.hasOwnProperty(attributeName)) {
+    if (Object.prototype.hasOwnProperty.call(nodeConfig, attributeName)) {
       node[attributeName] = parseFloat(nodeConfig[attributeName]);
     }
   }
 
   function getOptionalDurationUnit(node, nodeConfig, attributeName, defaultValue) {
     node[attributeName] = defaultValue;
-    if (nodeConfig.hasOwnProperty(attributeName)) {
+    if (Object.prototype.hasOwnProperty.call(nodeConfig, attributeName)) {
       if (chrono.kSupportedDurations.includes(nodeConfig[attributeName])) {
         node[attributeName] = nodeConfig[attributeName];
       } else {
@@ -80,14 +80,14 @@ module.exports = function(RED) {
 
   function getOptionalBooleanConfig(node, nodeConfig, attributeName, defaultValue) {
     node[attributeName] = defaultValue;
-    if (nodeConfig.hasOwnProperty(attributeName)) {
+    if (Object.prototype.hasOwnProperty.call(nodeConfig, attributeName)) {
       node[attributeName] = nodeConfig[attributeName];
     }
   }
 
   function reportIncorrectConfiguration(node) {
     logger.logError(`Incorrect or inconsistent configuration of retry node ` +
-                    `'${node.name}' with ID ${node.id}. Skipping further processing.`, node);
+      `'${node.name}' with ID ${node.id}. Skipping further processing.`, node);
   }
 
   function checkIsErrorMsg(node, msg) {
@@ -107,7 +107,8 @@ module.exports = function(RED) {
       const delayMax = node.retryStrategyRandomDelayMax;
       const delayMaxMilliseconds = chrono.toMilliseconds(delayMax, delayUnit);
 
-      const delayMilliseconds = Math.round(Math.random() * (delayMaxMilliseconds - delayMinMilliseconds) + delayMinMilliseconds);
+      const delayMilliseconds = Math.round(
+        Math.random() * (delayMaxMilliseconds - delayMinMilliseconds) + delayMinMilliseconds);
       const delay = chrono.fromMilliseconds(delayMilliseconds, delayUnit);
       return [delayMilliseconds, delay, delayUnit];
     } else {
@@ -159,14 +160,14 @@ module.exports = function(RED) {
         if (delayMilliseconds > 0) {
           statusText += ` in ${delay.toFixed(1)} ${delayUnit}`;
         }
-        node.status({fill: `yellow`, shape: 'dot', text: statusText});
+        node.status({ fill: `yellow`, shape: 'dot', text: statusText });
 
-        node.timerHandle = startTimer(function() {
+        node.timerHandle = startTimer(function () {
           node.send(node.lastValidMsg);
         }, delayMilliseconds);
       } else {
         const errorText = `Failed after retrying ${node.retryCounter} times.`;
-        node.status({fill: `red`, shape: 'dot', text: errorText});
+        node.status({ fill: `red`, shape: 'dot', text: errorText });
 
         let rethrownErrorText = errorText;
         if (msg.error.message !== undefined) {
@@ -184,8 +185,7 @@ module.exports = function(RED) {
   }
 
   // ---- Node main -------------------------------------------------------------------------------
-  RED.nodes.registerType('retry', function(nodeConfig) {
-    // eslint-disable-next-line no-invalid-this
+  RED.nodes.registerType('retry', function (nodeConfig) {
     const node = this;
     RED.nodes.createNode(node, nodeConfig);
 
@@ -202,7 +202,7 @@ module.exports = function(RED) {
     }
 
     // ---- Handling incoming messages ----
-    node.on('input', function(msg) {
+    node.on('input', function (msg) {
       const isError = checkIsErrorMsg(node, msg);
       if (!isError) {
         handleValidMsg(node, msg);

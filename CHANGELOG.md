@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Improvements
+- Development infrastructure: moved to ESLint 10
+
 ## [1.1.0] - 2024-10-10
 
 ### Features

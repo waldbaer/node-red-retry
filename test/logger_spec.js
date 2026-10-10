@@ -15,8 +15,8 @@ require('node-red-node-test-helper');
 const sinon = require('sinon');
 const logger = require('../resources/logger.js');
 
-describe('logger utility', function() {
-  beforeEach(function() {
+describe('logger utility', function () {
+  beforeEach(function () {
     sinon.spy(console, 'warn');
     sinon.spy(console, 'error');
 
@@ -24,7 +24,7 @@ describe('logger utility', function() {
     sinon.spy(nodeMock, 'error');
   });
 
-  afterEach(function() {
+  afterEach(function () {
     console.error.restore();
     console.warn.restore();
 
@@ -38,8 +38,8 @@ describe('logger utility', function() {
   // ==== Mocks =====
   class NodeMock {
     constructor() {}
-    warn(warnMessage, msg = undefined) {}
-    error(errorMessage, msg = undefined) {}
+    warn() {}
+    error() {}
   }
 
   // Mock for a Node-RED node supporting logging
@@ -48,14 +48,14 @@ describe('logger utility', function() {
   // ==== Tests =======================================================================================================
 
   // ==== Console logger (Browser) ==============
-  it(`console logger should log warning`, function(done) {
+  it(`console logger should log warning`, function (done) {
     const testedWarningString = 'test warning log';
     logger.logWarning(testedWarningString);
     console.warn.should.be.calledWithMatch(`[${LoggerNodeName}] ${testedWarningString}`);
     done();
   });
 
-  it(`console logger should log error`, function(done) {
+  it(`console logger should log error`, function (done) {
     const testedErrorString = 'test error log';
     logger.logError(testedErrorString);
     console.error.should.be.calledWithMatch(`[${LoggerNodeName}] ${testedErrorString}`);
@@ -63,7 +63,7 @@ describe('logger utility', function() {
   });
 
   // ==== Node logger (Node-RED) ================
-  it(`node logger should log warning`, function(done) {
+  it(`node logger should log warning`, function (done) {
     const testedWarningString = 'test warning log';
 
     logger.logWarning(testedWarningString, nodeMock);
@@ -71,7 +71,7 @@ describe('logger utility', function() {
     done();
   });
 
-  it(`node logger should log error`, function(done) {
+  it(`node logger should log error`, function (done) {
     const testedErrorString = 'test error log';
 
     logger.logError(testedErrorString, nodeMock);

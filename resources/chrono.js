@@ -1,6 +1,6 @@
 // Export chrono functions for shared usage in backend (node.js) and frontend (browser)
 
-(function(exports) {
+(function (exports) {
   // ---- Constants ----
   const kDurationMilliseconds = 'ms';
   const kDurationSeconds = 'sec';
@@ -21,46 +21,43 @@
 
   // ---- Utility Functions ----
 
-  exports.toMilliseconds = function(duration, unit) {
+  exports.toMilliseconds = function (duration, unit) {
     let durationMilliseconds = duration;
     switch (unit) {
-    case kDurationHours:
-      durationMilliseconds *= 60; // hours -> minutes
-      // No break. Continue step-wise conversion.
-    case kDurationMinutes:
-      durationMilliseconds *= 60; // minutes -> seconds
-      // No break. Continue step-wise conversion.
-    case kDurationSeconds:
-      durationMilliseconds *= 1000; // seconds -> milliseconds
-      // No break. Continue step-wise conversion.
-    case kDurationMilliseconds:
-      // No further conversion necessary.
-    default:
-      // No further conversion necessary.
-      break;
+      case kDurationHours:
+        durationMilliseconds *= 60; // hours -> minutes
+        // Falls through. Continue step-wise conversion.
+      case kDurationMinutes:
+        durationMilliseconds *= 60; // minutes -> seconds
+        // Falls through. Continue step-wise conversion.
+      case kDurationSeconds:
+        durationMilliseconds *= 1000; // seconds -> milliseconds
+        // Falls through. Continue step-wise conversion.
+      case kDurationMilliseconds:
+      default:
+        // No further conversion necessary.
+        break;
     }
     return durationMilliseconds;
   };
 
-  exports.fromMilliseconds = function(durationMilliseconds, unit) {
+  exports.fromMilliseconds = function (durationMilliseconds, unit) {
     let duration = durationMilliseconds;
     switch (unit) {
-    case kDurationHours:
-      duration /= 60; // minutes -> hours
-      // No break. Continue step-wise conversion.
-    case kDurationMinutes:
-      duration /= 60; // seconds -> minutes
-      // No break. Continue step-wise conversion.
-    case kDurationSeconds:
-      duration /= 1000; // milliseconds -> seconds
-      // No break. Continue step-wise conversion.
-    case kDurationMilliseconds:
-      // No further conversion necessary.
-    default:
-      // No further conversion necessary.
-      break;
+      case kDurationHours:
+        duration /= 60; // minutes -> hours
+        // Falls through. Continue step-wise conversion.
+      case kDurationMinutes:
+        duration /= 60; // seconds -> minutes
+        // Falls through. Continue step-wise conversion.
+      case kDurationSeconds:
+        duration /= 1000; // milliseconds -> seconds
+        // Falls through. Continue step-wise conversion.
+      case kDurationMilliseconds:
+      default:
+        // No further conversion necessary.
+        break;
     }
     return duration;
   };
-// eslint-disable-next-line no-invalid-this
 })(/* istanbul ignore next */ typeof exports === 'undefined' ? this['chrono'] = {} : exports);
