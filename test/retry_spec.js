@@ -13,15 +13,16 @@
 //   - https://www.npmjs.com/package/supertest
 // --------------------------------------------------------------------------------------------------------------------
 const helper = require('node-red-node-test-helper');
+const should = require('should');
 const sinon = require('sinon');
 
 const chrono = require('../resources/chrono.js');
 const retryNode = require('../nodes/retry.js');
 
-describe('retry node', function() {
-  beforeEach(function() {
+describe('retry node', function () {
+  beforeEach(function () {
   });
-  afterEach(function() {
+  afterEach(function () {
     helper.unload();
   });
 
@@ -64,7 +65,7 @@ describe('retry node', function() {
 
   function checkExpectedDelay(actualValue, expectedValueMin, expectedValueMax, tolerancePercent) {
     let result = false;
-    const toleranceFraction = expectedValueMax * (tolerancePercent/100);
+    const toleranceFraction = expectedValueMax * (tolerancePercent / 100);
     const minExpected = expectedValueMin - toleranceFraction;
     const maxExpected = expectedValueMax + toleranceFraction;
 
@@ -119,7 +120,7 @@ describe('retry node', function() {
   const NodeIdRetry = 'retry_node_id';
   const NodeIdHelper = 'helper_node_id';
 
-  const NodeHelper = {id: NodeIdHelper, z: FlowIdTestFlow, type: NodeTypeHelper};
+  const NodeHelper = { id: NodeIdHelper, z: FlowIdTestFlow, type: NodeTypeHelper };
 
   const RetryNodeDefault = {
     id: NodeIdRetry,
@@ -140,16 +141,16 @@ describe('retry node', function() {
   const FlowNodes = [
     RetryNodeDefault,
     NodeHelper,
-    {id: FlowIdTestFlow, type: 'tab', label: 'Test flow'},
+    { id: FlowIdTestFlow, type: 'tab', label: 'Test flow' },
   ];
 
   // ==== Tests =======================================================================================================
 
   // ==== Load Tests ==========================================================
 
-  it('should be loaded with explicitly configured valid attributes', function(done) {
+  it('should be loaded with explicitly configured valid attributes', function (done) {
     const retryConfig = FlowNodes[0];
-    helper.load([retryNode], FlowNodes, function() {
+    helper.load([retryNode], FlowNodes, function () {
       const retry = helper.getNode(NodeIdRetry);
       retry.should.have.property('name', retryConfig.name);
       retry.should.have.property('retryStrategy', retryConfig.retryStrategy);
@@ -165,7 +166,7 @@ describe('retry node', function() {
     });
   });
 
-  it('should be loaded with default attributes', function(done) {
+  it('should be loaded with default attributes', function (done) {
     const flow = structuredClone(FlowNodes);
     delete flow[0].name;
     delete flow[0].retryStrategy;
@@ -177,7 +178,7 @@ describe('retry node', function() {
     delete flow[0].retryAttempts;
     delete flow[0].throwAsErrorOnLimitExceeded;
 
-    helper.load([retryNode], flow, function() {
+    helper.load([retryNode], flow, function () {
       const retry = helper.getNode(NodeIdRetry);
       retry.should.have.property('retryStrategy', kRetryStrategyFixedDelay);
       retry.should.have.property('retryStrategyFixedDelay', kRetryStrategyFixedDelayDefault);
@@ -200,7 +201,7 @@ describe('retry node', function() {
       flow[0][attributeName] = attributeValue;
     }
 
-    helper.load([retryNode], flow, function() {
+    helper.load([retryNode], flow, function () {
       const retry = helper.getNode(NodeIdRetry);
       retry.should.have.property('_inputCallback', null);
       retry.should.have.property('_inputCallbacks', null);
@@ -209,45 +210,45 @@ describe('retry node', function() {
     });
   }
 
-  it('should be not loaded with an invalid retry strategy', function(done) {
+  it('should be not loaded with an invalid retry strategy', function (done) {
     genericLoadInvalidConfigTest([['retryStrategy', 'invalid_retry_strategy']], done);
   });
 
-  it('should be not loaded with an invalid fixed delay', function(done) {
+  it('should be not loaded with an invalid fixed delay', function (done) {
     genericLoadInvalidConfigTest([['retryStrategyFixedDelay', 'not_a_number']], done);
   });
 
-  it('should be not loaded with an invalid fixed delay unit', function(done) {
+  it('should be not loaded with an invalid fixed delay unit', function (done) {
     genericLoadInvalidConfigTest([['retryStrategyFixedDelayUnit', 'invalid_duration_unit']], done);
   });
 
-  it('should be not loaded with an invalid random delay min value', function(done) {
+  it('should be not loaded with an invalid random delay min value', function (done) {
     genericLoadInvalidConfigTest([['retryStrategyRandomDelayMin', 'not_a_number']], done);
   });
 
-  it('should be not loaded with an invalid random delay max value', function(done) {
+  it('should be not loaded with an invalid random delay max value', function (done) {
     genericLoadInvalidConfigTest([['retryStrategyRandomDelayMax', 'not_a_number']], done);
   });
 
-  it('should be not loaded with a random delay min value > max value', function(done) {
+  it('should be not loaded with a random delay min value > max value', function (done) {
     genericLoadInvalidConfigTest([
       ['retryStrategyRandomDelayMin', 5],
       ['retryStrategyRandomDelayMax', 4]], done);
   });
 
-  it('should be not loaded with an invalid random delay unit', function(done) {
+  it('should be not loaded with an invalid random delay unit', function (done) {
     genericLoadInvalidConfigTest([['retryStrategyRandomDelayUnit', 'invalid_duration_unit']], done);
   });
 
-  it('should be not loaded with an invalid number of retry attempts', function(done) {
+  it('should be not loaded with an invalid number of retry attempts', function (done) {
     genericLoadInvalidConfigTest([['retryAttempts', 'not_a_number']], done);
   });
 
-  it('should be not loaded with 0 retry attempts', function(done) {
+  it('should be not loaded with 0 retry attempts', function (done) {
     genericLoadInvalidConfigTest([['retryAttempts', '0']], done);
   });
 
-  it('should be not loaded with an invalid throwAsErrorOnLimitExceeded value', function(done) {
+  it('should be not loaded with an invalid throwAsErrorOnLimitExceeded value', function (done) {
     genericLoadInvalidConfigTest([['throwAsErrorOnLimitExceeded', 'text_instead_boolean']], done);
   });
 
@@ -261,7 +262,7 @@ describe('retry node', function() {
 
     console.log(`Immediate strategy test with ${retryAttempts} retries`);
 
-    helper.load([retryNode], flow, function() {
+    helper.load([retryNode], flow, function () {
       const retry = helper.getNode(NodeIdRetry);
       let startTime = null;
       let endTime = null;
@@ -273,7 +274,7 @@ describe('retry node', function() {
         // Measure and check the retry delay
         endTime = getTimestamp();
         if (startTime !== null) {
-          measuredDelay = endTime - startTime;
+          const measuredDelay = endTime - startTime;
           measuredDelay.should.be.below(20);
         }
 
@@ -310,7 +311,7 @@ describe('retry node', function() {
         // After last expected message is received, wait some more time to assert that
         // no further messages are received.
         if (msgCounter == expectedMsgCounter) {
-          setTimeout(function() {
+          setTimeout(function () {
             console.log(`Final check of msgCounter`);
             if (msgCounter == expectedMsgCounter) {
               done();
@@ -320,38 +321,38 @@ describe('retry node', function() {
       });
 
       // Initial valid message
-      retry.receive({payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString});
+      retry.receive({ payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString });
 
       // Then send erroneous messages
       // Send one more erroneous message to test limit of retry approaches
       for (let retryAttempt = 0; retryAttempt < retryAttempts + 1; retryAttempt++) {
         const delay = 100;
-        setTimeout(function() {
+        setTimeout(function () {
           startTime = getTimestamp();
           console.log(`Send message #${retryAttempt}`);
-          retry.receive({payload: AnyErrorMessage, error: { /* explicitly without 'message' */ }});
+          retry.receive({ payload: AnyErrorMessage, error: { /* explicitly without 'message' */ } });
         }, delay);
       }
     });
   }
 
-  it('should retry with immediate strategy (single retry)', function(done) {
+  it('should retry with immediate strategy (single retry)', function (done) {
     const retryAttempts = 1;
     genericImmediateStrategyTest(retryAttempts, done);
   });
 
-  it('should retry with immediate strategy (multiple retries)', function(done) {
+  it('should retry with immediate strategy (multiple retries)', function (done) {
     const retryAttempts = 200;
     genericImmediateStrategyTest(retryAttempts, done);
   });
 
   // ==== Error Handling Tests ================================================
 
-  it('should skip unexpected error without previous valid msg', function(done) {
+  it('should skip unexpected error without previous valid msg', function (done) {
     const flow = structuredClone(FlowNodes);
     flow[0].retryStrategy = kRetryStrategyImmediate;
 
-    helper.load([retryNode], flow, function() {
+    helper.load([retryNode], flow, function () {
       const retry = helper.getNode(NodeIdRetry);
 
       let msgExpected = false;
@@ -370,24 +371,24 @@ describe('retry node', function() {
       });
 
       // Send error message first.
-      retry.receive({payload: 'other_input', error: {message: AnyErrorMessage}});
+      retry.receive({ payload: 'other_input', error: { message: AnyErrorMessage } });
       retry.warn.should.be.calledWithMatch(`Error reported before any valid msg. Skipping retry attempts.`);
 
       // Send a valid message after some time to test recovery.
-      setTimeout(function() {
+      setTimeout(function () {
         msgExpected = true;
-        retry.receive({payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString});
+        retry.receive({ payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString });
       }, 500);
     });
   });
 
-  it('should stop a running delay on reception of another message', function(done) {
+  it('should stop a running delay on reception of another message', function (done) {
     const flow = structuredClone(FlowNodes);
     flow[0].retryStrategy = kRetryStrategyFixedDelay;
     flow[0].retryStrategyFixedDelay = 500;
     flow[0].retryStrategyFixedDelayUnit = kDurationMilliseconds;
 
-    helper.load([retryNode], flow, function() {
+    helper.load([retryNode], flow, function () {
       const retry = helper.getNode(NodeIdRetry);
 
       let msgCounter = 0;
@@ -401,22 +402,22 @@ describe('retry node', function() {
       });
 
       // Initial valid message
-      retry.receive({payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString});
+      retry.receive({ payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString });
       // First error message
-      retry.receive({payload: AnyInputString, error: {message: AnyErrorMessage}});
+      retry.receive({ payload: AnyInputString, error: { message: AnyErrorMessage } });
 
       // Second error message while delay of first message is running
-      setTimeout(function() {
-        retry.receive({payload: AnyInputString, error: {message: AnyErrorMessage}});
+      setTimeout(function () {
+        retry.receive({ payload: AnyInputString, error: { message: AnyErrorMessage } });
       }, 250);
 
       // Another valid message
-      setTimeout(function() {
-        retry.receive({payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString});
+      setTimeout(function () {
+        retry.receive({ payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString });
       }, 500);
 
       // Final check
-      setTimeout(function() {
+      setTimeout(function () {
         if (msgCounter == 2) {
           done();
         } else {
@@ -443,7 +444,7 @@ describe('retry node', function() {
 
     console.log(`${retryStrategy} test with ${retryAttempts} retries, ${delayMin}..${delayMax} ${delayUnit}`);
 
-    helper.load([retryNode], flow, function() {
+    helper.load([retryNode], flow, function () {
       const retry = helper.getNode(NodeIdRetry);
       let startTime = null;
       let endTime = null;
@@ -459,7 +460,7 @@ describe('retry node', function() {
 
         // Measure and check the retry delay
         if ((startTime !== null) && (msgCounter < expectedMsgCounter)) {
-          measuredDelay = endTime - startTime;
+          const measuredDelay = endTime - startTime;
           console.log(`Measured delay: ${measuredDelay.toFixed(1)}ms`);
           checkExpectedDelay(measuredDelay, delayMinMilliseconds, delayMaxMilliseconds, AcceptedDelayJitter);
         }
@@ -480,7 +481,7 @@ describe('retry node', function() {
           sinon.assert.match(msg, null);
           errorMsg.should.have.property(PropertyPayload, AnyErrorMessage);
           errorMsg.should.have.property(PropertyError,
-            {message: `${AnyErrorMessage} ([Retry] Failed after retrying ${retryAttempts} times.)`});
+            { message: `${AnyErrorMessage} ([Retry] Failed after retrying ${retryAttempts} times.)` });
         }
 
         if (msgCounter == 1) {
@@ -494,7 +495,7 @@ describe('retry node', function() {
         // After last expected message is received, wait some more time to assert that
         // no further messages are received.
         if (msgCounter == expectedMsgCounter) {
-          setTimeout(function() {
+          setTimeout(function () {
             console.log(`Final check of msgCounter`);
             if (msgCounter == expectedMsgCounter) {
               done();
@@ -504,22 +505,22 @@ describe('retry node', function() {
       });
 
       // Initial valid message
-      retry.receive({payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString});
+      retry.receive({ payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString });
 
       // Then send erroneous messages (after the regular fixedDelay expired)
       // Send one more erroneous message to test limit of retry approaches
       for (let retryAttempt = 0; retryAttempt < retryAttempts + 1; retryAttempt++) {
         const delay = (2 * retryAttempt * delayMaxMilliseconds) + 100;
-        setTimeout(function() {
+        setTimeout(function () {
           startTime = getTimestamp();
           console.log(`Send error message #${retryAttempt}`);
-          retry.receive({payload: AnyErrorMessage, error: {message: AnyErrorMessage}});
+          retry.receive({ payload: AnyErrorMessage, error: { message: AnyErrorMessage } });
         }, delay);
       }
     });
   }
 
-  it('should retry with fixed delay (milliseconds)', function(done) {
+  it('should retry with fixed delay (milliseconds)', function (done) {
     const retryStrategy = kRetryStrategyFixedDelay;
     const retryAttempts = 6;
     const fixedDelay = 200;
@@ -528,7 +529,7 @@ describe('retry node', function() {
     genericDelayTest(retryStrategy, retryAttempts, fixedDelay, fixedDelay, fixedDelayUnit, done);
   });
 
-  it('should retry with fixed delay (seconds)', function(done) {
+  it('should retry with fixed delay (seconds)', function (done) {
     const retryStrategy = kRetryStrategyFixedDelay;
     const retryAttempts = 2;
     const fixedDelay = 0.6;
@@ -537,25 +538,25 @@ describe('retry node', function() {
     genericDelayTest(retryStrategy, retryAttempts, fixedDelay, fixedDelay, fixedDelayUnit, done);
   });
 
-  it('should retry with fixed delay (minutes)', function(done) {
+  it('should retry with fixed delay (minutes)', function (done) {
     const retryStrategy = kRetryStrategyFixedDelay;
     const retryAttempts = 2;
-    const fixedDelay = 0.8/60;
+    const fixedDelay = 0.8 / 60;
     const fixedDelayUnit = kDurationMinutes;
 
     genericDelayTest(retryStrategy, retryAttempts, fixedDelay, fixedDelay, fixedDelayUnit, done);
   });
 
-  it('should retry with fixed delay (hours)', function(done) {
+  it('should retry with fixed delay (hours)', function (done) {
     const retryStrategy = kRetryStrategyFixedDelay;
     const retryAttempts = 1;
-    const fixedDelay = 2/3600;
+    const fixedDelay = 2 / 3600;
     const fixedDelayUnit = kDurationHours;
 
     genericDelayTest(retryStrategy, retryAttempts, fixedDelay, fixedDelay, fixedDelayUnit, done);
   });
 
-  it('should retry with random delay (milliseconds)', function(done) {
+  it('should retry with random delay (milliseconds)', function (done) {
     const retryStrategy = kRetryStrategyRandomDelay;
     const retryAttempts = 1;
     const randomDelayMin = 200;
@@ -565,7 +566,7 @@ describe('retry node', function() {
     genericDelayTest(retryStrategy, retryAttempts, randomDelayMin, randomDelayMax, delayUnit, done);
   });
 
-  it('should retry with random delay (milliseconds, identical min/max)', function(done) {
+  it('should retry with random delay (milliseconds, identical min/max)', function (done) {
     const retryStrategy = kRetryStrategyRandomDelay;
     const retryAttempts = 2;
     const randomDelayMin = 500;
@@ -575,7 +576,7 @@ describe('retry node', function() {
     genericDelayTest(retryStrategy, retryAttempts, randomDelayMin, randomDelayMax, delayUnit, done);
   });
 
-  it('should retry with random delay (seconds)', function(done) {
+  it('should retry with random delay (seconds)', function (done) {
     const retryStrategy = kRetryStrategyRandomDelay;
     const retryAttempts = 3;
     const randomDelayMin = 0.3;
@@ -585,21 +586,21 @@ describe('retry node', function() {
     genericDelayTest(retryStrategy, retryAttempts, randomDelayMin, randomDelayMax, delayUnit, done);
   });
 
-  it('should retry with random delay (minutes)', function(done) {
+  it('should retry with random delay (minutes)', function (done) {
     const retryStrategy = kRetryStrategyRandomDelay;
     const retryAttempts = 2;
-    const randomDelayMin = 0.5/60;
-    const randomDelayMax = 1/60;
+    const randomDelayMin = 0.5 / 60;
+    const randomDelayMax = 1 / 60;
     const delayUnit = kDurationMinutes;
 
     genericDelayTest(retryStrategy, retryAttempts, randomDelayMin, randomDelayMax, delayUnit, done);
   });
 
-  it('should retry with random delay (hours)', function(done) {
+  it('should retry with random delay (hours)', function (done) {
     const retryStrategy = kRetryStrategyRandomDelay;
     const retryAttempts = 2;
-    const randomDelayMin = 0.1/3600;
-    const randomDelayMax = 1.0/3600;
+    const randomDelayMin = 0.1 / 3600;
+    const randomDelayMax = 1.0 / 3600;
     const delayUnit = kDurationHours;
 
     genericDelayTest(retryStrategy, retryAttempts, randomDelayMin, randomDelayMax, delayUnit, done);

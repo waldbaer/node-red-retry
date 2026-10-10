@@ -24,3 +24,11 @@ coverage
 
 # Tests
 test/
+
+# Linting
+eslint.config.js
+
+# Artificial Intelligence (AI)
+.claude/
+.agents/
+openspec/

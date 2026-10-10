@@ -43,8 +43,8 @@
 
     if (retryStrategy === kRetryStrategyRandomDelay) {
       result = RED.validators.number(delayMin) && (delayMin >= 1) &&
-               RED.validators.number(delayMax) && (delayMax >= 1) &&
-               delayMin <= delayMax;
+        RED.validators.number(delayMax) && (delayMax >= 1) &&
+        delayMin <= delayMax;
     }
     return result;
   }
@@ -64,19 +64,19 @@
     ],
 
     defaults: {
-      name: {value: ''},
+      name: { value: '' },
       retryAttempts: {
         value: kRetryAttemptsDefault,
         required: false,
-        validate: function(value) {
+        validate: function (value) {
           return RED.validators.number(value) && (value >= 1);
         },
       },
-      retryStrategy: {value: kRetryStrategyDefault, required: false},
+      retryStrategy: { value: kRetryStrategyDefault, required: false },
       retryStrategyFixedDelay: {
         value: kRetryStrategyFixedDelayDefault,
         required: false,
-        validate: function(value) {
+        validate: function (value) {
           let result = true;
           if ($('#node-input-retryStrategy').val() == kRetryStrategyFixedDelay) {
             result = RED.validators.number(value) && (value >= 1);
@@ -84,18 +84,18 @@
           return result;
         },
       },
-      retryStrategyFixedDelayUnit: {value: kDelayUnitDefault, required: false},
+      retryStrategyFixedDelayUnit: { value: kDelayUnitDefault, required: false },
       retryStrategyRandomDelayMin: {
         value: kRetryStrategyRandomDelayMinDefault,
         required: false,
-        validate: function() {
+        validate: function () {
           return validateRandomDelayMinMax();
         },
       },
       retryStrategyRandomDelayMax: {
         value: kRetryStrategyRandomDelayMaxDefault,
         required: false,
-        validate: function() {
+        validate: function () {
           return validateRandomDelayMinMax();
         },
       },
@@ -103,10 +103,10 @@
         value: kDelayUnitDefault,
         required: false,
       },
-      throwAsErrorOnLimitExceeded: {value: kThrowAsErrorOnLimitExceededDefault, required: false},
+      throwAsErrorOnLimitExceeded: { value: kThrowAsErrorOnLimitExceededDefault, required: false },
     },
 
-    label: function() {
+    label: function () {
       let label = this.name;
 
       if (!label) {
@@ -114,7 +114,8 @@
         if (this.retryStrategy === kRetryStrategyFixedDelay) {
           delay = `${this.retryStrategyFixedDelay} ${this.retryStrategyFixedDelayUnit}`;
         } else if (this.retryStrategy === kRetryStrategyRandomDelay) {
-          delay = `${this.retryStrategyRandomDelayMin}..${this.retryStrategyRandomDelayMax} ${this.retryStrategyRandomDelayUnit}`;
+          delay = `${this.retryStrategyRandomDelayMin}..${this.retryStrategyRandomDelayMax} ` +
+            `${this.retryStrategyRandomDelayUnit}`;
         }
 
         label = `${this.retryAttempts} ${this.retryAttempts > 1 ? 'retries' : 'retry'}`;
@@ -126,7 +127,7 @@
       return label;
     },
 
-    oneditprepare: async function() {
+    oneditprepare: async function () {
       // UI properties
       const retryStrategyField = $('#node-input-retryStrategy');
 
@@ -147,7 +148,7 @@
       }
       retryStrategyField.val(this.retryStrategy);
 
-      retryStrategyField.on('change', function() {
+      retryStrategyField.on('change', function () {
         if (retryStrategyField.val() === kRetryStrategyImmediate) {
           retryStrategyFixedDelayDetails.hide();
           retryStrategyRandomDelayOption.hide();
@@ -163,11 +164,11 @@
       });
 
       // Fixed delay strategy
-      retryStrategyFixedDelay.spinner({min: 1});
+      retryStrategyFixedDelay.spinner({ min: 1 });
 
       // Random delay strategy
-      retryStrategyRandomDelayMin.spinner({min: 1});
-      retryStrategyRandomDelayMax.spinner({min: 1});
+      retryStrategyRandomDelayMin.spinner({ min: 1 });
+      retryStrategyRandomDelayMax.spinner({ min: 1 });
 
       // Delay units
       for (const [value, label] of kDelayUnits) {
@@ -178,7 +179,7 @@
       retryStrategyRandomDelayUnit.val(this.retryStrategyRandomDelayUnit);
 
       // Retry attempts
-      retryAttempts.spinner({min: 1});
+      retryAttempts.spinner({ min: 1 });
     },
 });
 </script>
