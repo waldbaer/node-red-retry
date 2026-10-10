@@ -13,3 +13,8 @@ coverage
 
 # Binaries
 *.tgz
+
+# Artificial Intelligence (AI)
+/.claude/skills/
+/.claude/agents/
+/.claude/commands/
