@@ -113,6 +113,13 @@ describe('retry node', function () {
     }
   }
 
+  // Status spy on the node instance. The helper's own spy is removed by helper.unload() before the node is stopped.
+  function spyOnPublishedStatus(retryNode) {
+    const publishedStatus = sinon.spy(retryNode.status.bind(retryNode));
+    retryNode.status = publishedStatus;
+    return publishedStatus;
+  }
+
   // ==== Flow defaults ===============================================================================================
 
   const FlowIdTestFlow = 'test_flow';
@@ -604,5 +611,79 @@ describe('retry node', function () {
     const delayUnit = kDurationHours;
 
     genericDelayTest(retryStrategy, retryAttempts, randomDelayMin, randomDelayMax, delayUnit, done);
+  });
+
+  // ==== Stop Tests ==========================================================
+
+  function genericStatusClearedOnStopTest(retryPending, done) {
+    const flow = structuredClone(FlowNodes);
+    flow[0].retryStrategy = kRetryStrategyFixedDelay;
+    flow[0].retryStrategyFixedDelay = 300;
+    flow[0].retryStrategyFixedDelayUnit = kDurationMilliseconds;
+
+    helper.load([retryNode], flow, function () {
+      const retry = helper.getNode(NodeIdRetry);
+      const publishedStatus = spyOnPublishedStatus(retry);
+
+      // Initial valid message
+      retry.receive({ payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString });
+      checkNodeStatusValidMsg(retry);
+
+      if (retryPending) {
+        // Error message starting the delayed retry
+        retry.receive({ payload: AnyInputString, error: { message: AnyErrorMessage } });
+        checkNodeStatusRetryAttempt(retry, 1, flow[0].retryAttempts, kDurationMilliseconds);
+      }
+
+      helper.unload().then(function () {
+        publishedStatus.lastCall.should.be.calledWithExactly({});
+        done();
+      }).catch(done);
+    });
+  }
+
+  it('should not send a pending retry after the node was stopped', function (done) {
+    const flow = structuredClone(FlowNodes);
+    flow[0].retryStrategy = kRetryStrategyFixedDelay;
+    flow[0].retryStrategyFixedDelay = 300;
+    flow[0].retryStrategyFixedDelayUnit = kDurationMilliseconds;
+
+    helper.load([retryNode], flow, function () {
+      const retry = helper.getNode(NodeIdRetry);
+
+      let msgCounter = 0;
+      retry.on('call:send', () => {
+        msgCounter++;
+      });
+
+      // Initial valid message
+      retry.receive({ payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString });
+      // Error message starting the delayed retry
+      retry.receive({ payload: AnyInputString, error: { message: AnyErrorMessage } });
+
+      // Stop the node while the retry is waiting for its delay
+      setTimeout(function () {
+        helper.unload();
+      }, 50);
+
+      // Final check
+      setTimeout(function () {
+        if (msgCounter == 1) {
+          done();
+        } else {
+          should.fail(null, null, `Stopping the node must cancel the pending retry. Observed ${msgCounter} sends.`);
+        }
+      }, 1000);
+    });
+  });
+
+  it('should clear the node status when stopped during a pending retry', function (done) {
+    const retryPending = true;
+    genericStatusClearedOnStopTest(retryPending, done);
+  });
+
+  it('should clear the node status when stopped after a valid message', function (done) {
+    const retryPending = false;
+    genericStatusClearedOnStopTest(retryPending, done);
   });
 });

@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixes
+- Pending retry is still sent after the node was stopped or redeployed (#17)
+
 ### Improvements
 - Development infrastructure: moved to ESLint 10
 

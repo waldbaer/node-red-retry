@@ -210,5 +210,11 @@ module.exports = function (RED) {
         handleErrorMsg(node, msg);
       }
     });
+
+    // ---- Handling node stop ----
+    node.on('close', function () {
+      stopTimer(node);
+      node.status({});
+    });
   });
 };
