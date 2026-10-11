@@ -1,7 +1,4 @@
 # ---- Same as .gitignore ----
-# github
-.github
-
 # npm
 package-lock.json
 
