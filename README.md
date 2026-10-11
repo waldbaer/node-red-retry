@@ -1,7 +1,8 @@
 # Configurable retry mechanism for Node-RED flows.
 
 [![Platform](https://img.shields.io/badge/platform-Node--RED-red)](https://nodered.org)
-[![npm version](https://badge.fury.io/js/@waldbaer%2Fnode-red-retry.svg)](https://badge.fury.io/js/@waldbaer%2Fnode-red-retry)
+[![NPM version](https://badge.fury.io/js/@waldbaer%2Fnode-red-retry.svg)](https://badge.fury.io/js/@waldbaer%2Fnode-red-retry)
+![NPM Downloads](https://img.shields.io/npm/dm/%40waldbaer%2Fnode-red-retry)
 [![MIT License](https://img.shields.io/github/license/waldbaer/node-red-retry?style=flat-square)](https://opensource.org/licenses/MIT)
 [![GitHub issues open](https://img.shields.io/github/issues/waldbaer/node-red-retry?style=flat-square)](https://github.com/waldbaer/node-red-retry/issues)
 [![GitHub Actions](https://github.com/waldbaer/node-red-retry/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/waldbaer/node-red-retry/actions/workflows/test.yml)
