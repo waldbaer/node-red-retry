@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.1.1] - 2026-10-11
 
 ### Fixes
 - Pending retry is still sent after the node was stopped or redeployed (#17)
