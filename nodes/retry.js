@@ -163,7 +163,8 @@ module.exports = function (RED) {
         node.status({ fill: `yellow`, shape: 'dot', text: statusText });
 
         node.timerHandle = startTimer(function () {
-          node.send(node.lastValidMsg);
+          const retryMsg = RED.util.cloneMessage(node.lastValidMsg);
+          node.send(retryMsg);
         }, delayMilliseconds);
       } else {
         const errorText = `Failed after retrying ${node.retryCounter} times.`;
