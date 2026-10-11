@@ -613,6 +613,59 @@ describe('retry node', function () {
     genericDelayTest(retryStrategy, retryAttempts, randomDelayMin, randomDelayMax, delayUnit, done);
   });
 
+  // ==== Isolation Tests =====================================================
+
+  function genericIsolationTest(retryStrategy, done) {
+    const retryAttempts = 3;
+    const flow = structuredClone(FlowNodes);
+    flow[0].retryStrategy = retryStrategy;
+    flow[0].retryAttempts = retryAttempts;
+    flow[0].retryStrategyFixedDelay = 100;
+    flow[0].retryStrategyFixedDelayUnit = kDurationMilliseconds;
+
+    helper.load([retryNode], flow, function () {
+      const retry = helper.getNode(NodeIdRetry);
+      const downstream = helper.getNode(NodeIdHelper);
+
+      let msgCounter = 0;
+      const expectedMsgCounter = retryAttempts + 1; // +1 for initial valid msg
+
+      downstream.on('input', (msg) => {
+        try {
+          msgCounter++;
+
+          // Forward of the valid msg and all retries must carry the original payload
+          msg.should.have.property(PropertyPayload, AnyInputString);
+
+          // Modify the payload like any node further down the flow may do
+          msg.payload += ' (modified downstream)';
+
+          if (msgCounter < expectedMsgCounter) {
+            // Request the next retry only after the previous message was processed downstream
+            retry.receive({ payload: AnyErrorMessage, error: { message: AnyErrorMessage } });
+          } else {
+            done();
+          }
+        } catch (err) {
+          done(err);
+        }
+      });
+
+      // Initial valid message
+      retry.receive({ payload: AnyInputString, topic: AnyInputString, OtherAttribute: AnyInputString });
+    });
+  }
+
+  it('should re-send the original payload after downstream modifications (immediate strategy)', function (done) {
+    const retryStrategy = kRetryStrategyImmediate;
+    genericIsolationTest(retryStrategy, done);
+  });
+
+  it('should re-send the original payload after downstream modifications (fixed delay)', function (done) {
+    const retryStrategy = kRetryStrategyFixedDelay;
+    genericIsolationTest(retryStrategy, done);
+  });
+
   // ==== Stop Tests ==========================================================
 
   function genericStatusClearedOnStopTest(retryPending, done) {
